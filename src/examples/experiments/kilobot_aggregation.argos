@@ -1,0 +1,71 @@
+<?xml version="1.0 ?>
+
+<argos-configuration>
+
+    <!-- ************************* -->
+    <!-- * General configuration * -->
+    <!-- ************************* -->
+    <framework>
+        <system threads = "0" />
+        <experiment length = "0"
+                    ticks_per_second = "10"
+                    random_seeds = "123" />
+    </framework>
+
+    <!-- *************** -->
+    <!-- * Controllers * -->
+    <!-- *************** -->
+    <controllers>
+        <kilobot_controller id = "kibc">
+            <actuators>
+                <differential_steering implementation="default" />
+                <kilobot_led implementation="default" />
+                <kilobot_communication implementation="default" />
+            </actuators>
+            <sensor>
+                <kilobot_communication implementation="default" medium="kilocomm" show_rays="true" />
+            </sensor>
+        </kilobot_controller>
+    </controllers>
+
+    <!-- *********************** -->
+    <!-- * Arena configuration * -->
+    <!-- *********************** -->
+    <arena size="1, 1, 0.3" center="0,0,0.15">
+        <distribute>
+            <position method="uniform" min="-0.1,-0.1,0" max="0.1,0.1,0" />
+            <orientation method="gaussian" mean="0,0,0" std_dev="360,0,0" />
+            <entity quantity="2" max_trials="100">
+                <kilobot id="kb">
+                    <controller config="kibc" />
+                </kilobot>
+            </entity>
+        </distribute>
+    </arena>
+
+    <!-- ******************* -->
+    <!-- * Physics engines * -->
+    <!-- ******************* -->
+    <physics_engines>
+        <dynamics3d id = "dyn3d"/>
+    </physics_engines>
+
+    <!-- ********* -->
+    <!-- * Media * -->
+    <!-- ********* -->
+    <media>
+        <kilobot_communication id = "kilocomm" />
+    </media>
+
+    <!-- ***************** -->
+    <!-- * Visualization * -->
+    <!-- ***************** -->
+    <visualization>
+        <qt-opengl>
+            <camera>
+                <placement idx="0" position="-0.660983,0,0.6875" look_at="0.0531593,0,-0.0125011" lens_focal_length="20" />
+            </camera>
+        </qt-opengl>
+    </visualization>
+
+</argos-configuration>
