@@ -21,10 +21,10 @@ class CAggregation_controller : public CCI_Controller {
 public:
 
     /* Class constructeur */
-    aggregation_controller();
+    CAggregation_controller();
 
     /* Class destructeur*/
-    virtual ~aggregation_controller() {}
+    virtual ~CAggregation_controller() {}
 
     /* Init */
     virtual void Init(TConfigurationNode& t_node);
@@ -33,17 +33,17 @@ public:
     virtual void ControlStep();
 
     /* Reset */
-    virtual void reset();
+    virtual void Reset();
 
     /* Destroye */
-    virtual void Destroy();
+    virtual void Destroy() {}
 
     /* Récupération des états */
-    const MovementState GetCurrentMovementState();
-    const MovementState GetPreviousMovementState();
+    inline const MovementState GetCurrentMovementState() const {return m_tCurrentMovementState;};
+    inline const MovementState GetPreviousMovementState() const {return mt_PreviousMovementState;};
 
-    const SurrondingRobots GetCurrentSurrondingRobots();
-    const SurrondingRobots GetPreviousSurrondingRobots();
+    inline const SurrondingRobots GetCurrentSurrondingRobots() const {return m_tCurrentSurrondingRobots;};
+    inline const SurrondingRobots GetPreviousSurrondingRobots() const {return m_tPreviousSurrondingRobots;};
 
 private:
 

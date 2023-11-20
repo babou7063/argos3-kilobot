@@ -1,4 +1,11 @@
+/* controller definition*/
 #include "aggregation_controller.h"
+/* XML parsing*/
+#include <argos3/core/utility/configuration/argos_configuration.h>
+/* verteur 2d*/
+#include <argos3/core/utility/math/vector2.h>
+#include <vector>
+#include <algorithm>
 
 CAggregation_controller::CAggregation_controller():
     
@@ -49,15 +56,6 @@ void CAggregation_controller::ControlStep(){
         // gerer les posssibles erreurs ici
         break;
     }
-
-const CAggregation_controller::GetCurrentMovementState() const {return m_tCurrentMovementState;}
-
-const CAggregation_controller::GetPreviousMovementState() const {return mt_PreviousMovementState;}
-
-const CAggregation_controller::GetCurrentSurrondingRobots() const {return m_tCurrentSurrondingRobots;}
-
-const CAggregation_controller::GetPreviousSurrondingRobots() const {return m_tPreviousSurrondingRobots;}
-
 }
 
 REGISTER_CONTROLLER(CAggregation_controller, "kilobot_aggregation_controller")
