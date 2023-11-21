@@ -25,24 +25,26 @@ void CAggregation_controller::Init(TConfigurationNode& t_node){
     GetNodeAttributeOrDefault(t_node, "team_kilo", team_kilo, team_kilo);
     GetNodeAttributeOrDefault(t_node, "rcv_timing", rcv_timing, rcv_timing);
 
-    delay(2000);
+    SetLinearVelocity(100,100);
+
+    //delay(2000);
 
     if (team_kilo == 1){
-        set_color(RGB(255,0,0));
+        //set_color(RGB(255,0,0));
     }
     else{
-        set_color(RGB(0,255,0));
+        //set_color(RGB(0,255,0));
     }
 
     Reset();
 }
 
 void CAggregation_controller::Reset(){
-    m_tCurrentMovementState = KILOBOT_STATE_STOP;
-    mt_PreviousMovementState = KILOBOT_STATE_STOP;
-    
     m_tCurrentSurrondingRobots = KILOBOT_ALONE;
     m_tPreviousSurrondingRobots = KILOBOT_ALONE;
+
+    m_tCurrentMovementState = KILOBOT_STATE_STOP;
+    mt_PreviousMovementState = KILOBOT_STATE_STOP;
 }
 
 void CAggregation_controller::SendMessage(){
@@ -84,7 +86,7 @@ void CAggregation_controller::ControlStep(){
     // Change l'état en fct des mess reçut
     SetStateSurrondingRobots();
 
-    // action
+    // Action de random walk
     switch (m_tCurrentSurrondingRobots){
 
     case KILOBOT_ALONE:
