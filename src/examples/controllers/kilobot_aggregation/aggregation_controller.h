@@ -5,6 +5,8 @@
 
 #include <argos3/core/control_interface/ci_controller.h>
 #include <argos3/core/utility/math/vector2.h>
+#include <argos3/core/utility/logging/argos_log.h>
+#include <argos3/plugins/robots/kilobot/control_interface/kilolib.h>
 
 using namespace argos;
 
@@ -12,6 +14,7 @@ enum MovementState {KILOBOT_STATE_STOP, KILOBOT_STATE_TURNING, KILOBOT_STATE_MOV
 
 enum SurrondingRobots {KILOBOT_ALONE, KILOBOT_NEXT_TO_F, KILOBOT_NEXT_TO_E, KILOBOT_NEXT_TO_FE};
 
+struct teamMessage {UInt32 team_kilo;};
 
 /*
  * implémentation de la classe CCI_Controller
@@ -57,6 +60,19 @@ private:
     /* Data from XML file*/
     UInt32 team_kilo;
     UInt32 rcv_timing;
+
+    /* Fonction de message*/
+    void SendMessage();
+    void ReceiveMessages();
+
+    /* change le state en fct du message reçut */
+    void SetStateSurrondingRobots();
+
+    /* Random walk */
+    void RW_Alone();
+    void RW_NF();
+    void RW_NE();
+    void RW_NFE();
 };
 
 #endif // CAGGREGATION_CONTROLLER_H
