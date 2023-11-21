@@ -18,19 +18,45 @@ CAggregation_controller::CAggregation_controller():
 }
 
 void CAggregation_controller::Init(TConfigurationNode& t_node){
+    GetNodeAttributeOrDefault(t_node, "team_kilo", team_kilo, team_kilo);
+    GetNodeAttributeOrDefault(t_node, "rcv_timing", rcv_timing, rcv_timing);
 
+    if (team_kilo == "1"){
+        set_color(RGB(255, 0, 0));
+        printf("team rouge")
+    }
+    else{
+        set_color(RGB(0, 255, 0));
+        log("team verte")
+    }
+
+    Reset();
 }
 
 void CAggregation_controller::Reset(){
-
+    m_tCurrentMovementState = KILOBOT_ALONE;
+    mt_PreviousMovementState = KILOBOT_ALONE;
+    
+    m_tCurrentSurrondingRobots = KILOBOT_STATE_STOP;
+    m_tPreviousSurrondingRobots = KILOBOT_STATE_STOP;
 }
 
 void CAggregation_controller::ControlStep(){
     
-    // collect des données 
+    // Envoie de l'équipe
+    message_t msg;
+    msg.data[0] = team_kilo;
+    msg.type = NORMAL;
+    msg.crc = message_crc(&msg);
 
 
-    // traitement des données 
+    kilo_message_tx = msg;
+    // register tranmsission success callback
+    kilo_message_tx_success = tx_message_success;
+
+
+    // récupération équipe adverse
+
 
 
     // action

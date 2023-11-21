@@ -25,8 +25,7 @@
             <sensors>
                 <kilobot_communication implementation="default" medium="kilocomm" show_rays="true" />
             </sensors>
-            <params>
-            </params>
+            <params rcv_timing="15" />
         </kilobot_aggregation_controller>
     </controllers>
 
@@ -51,8 +50,21 @@
         <distribute>
             <position method="uniform" min="-0.5,-0.5,0" max="0.5,0.5,0" />
             <orientation method="gaussian" mean="0,0,0" std_dev="360,0,0" />
-            <entity quantity="2" max_trials="100">
-                <kilobot id="kb">
+            <entity quantity="4" max_trials="100">
+                <kilobot id="kb1">
+                    <params team_kilo="1" />
+                    <controller config="kbc" />
+                </kilobot>
+                <kilobot id="kb2">
+                    <params team_kilo="1" />
+                    <controller config="kbc" />
+                </kilobot>
+                <kilobot id="kb3">
+                    <params team_kilo="2" />
+                    <controller config="kbc" />
+                </kilobot>
+                <kilobot id="kb4">
+                    <params team_kilo="2" />
                     <controller config="kbc" />
                 </kilobot>
             </entity>

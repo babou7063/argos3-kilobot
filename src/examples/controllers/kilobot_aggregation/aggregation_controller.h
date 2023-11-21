@@ -52,7 +52,11 @@ private:
     MovementState mt_PreviousMovementState;
     
     SurrondingRobots m_tCurrentSurrondingRobots;
-    SurrondingRobots m_tPreviousSurrondingRobots;  
+    SurrondingRobots m_tPreviousSurrondingRobots;
+
+    /* Data from XML file*/
+    UInt32 team_kilo;
+    UInt32 rcv_timing;
 };
 
 #endif // CAGGREGATION_CONTROLLER_H
