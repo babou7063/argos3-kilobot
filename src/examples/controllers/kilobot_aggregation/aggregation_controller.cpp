@@ -25,7 +25,7 @@ void CAggregation_controller::Init(TConfigurationNode& t_node){
     GetNodeAttributeOrDefault(t_node, "team_kilo", team_kilo, team_kilo);
     GetNodeAttributeOrDefault(t_node, "rcv_timing", rcv_timing, rcv_timing);
 
-    SetLinearVelocity(100,100);
+    //SetLinearVelocity(100,100);
 
     //delay(2000);
 

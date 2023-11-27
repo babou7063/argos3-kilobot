@@ -15,18 +15,17 @@
     <!-- * Controllers * -->
     <!-- *************** -->
     <controllers>
-        <kilobot_aggregation_controller id = "kbc"
-                            library="build/examples/controllers/kilobot_aggregation/libkilobot_aggregation">
+        <kilobot_controller id = "kbc">
             <actuators>
                 <differential_steering implementation="default" />
                 <kilobot_led implementation="default" />
-                <kilobot_communication implementation="default" />
+                <kilobot_communication implementation="default" medium="kilocomm" />
             </actuators>
             <sensors>
                 <kilobot_communication implementation="default" medium="kilocomm" show_rays="true" />
             </sensors>
-            <params rcv_timing="15" />
-        </kilobot_aggregation_controller>
+            <params behavior="build/examples/behaviors/aggregation" />
+        </kilobot_controller>
     </controllers>
 
     <!-- *********************** -->
@@ -53,19 +52,19 @@
             <entity quantity="4" max_trials="100">
                 <kilobot id="kb1">
                     <params team_kilo="1" />
-                    <controller config="kbc" />
+                    <controller config="kbc" />>
                 </kilobot>
                 <kilobot id="kb2">
                     <params team_kilo="1" />
-                    <controller config="kbc" />
+                    <controller config="kbc" />>
                 </kilobot>
                 <kilobot id="kb3">
                     <params team_kilo="2" />
-                    <controller config="kbc" />
+                    <controller config="kbc" />>
                 </kilobot>
                 <kilobot id="kb4">
                     <params team_kilo="2" />
-                    <controller config="kbc" />
+                    <controller config="kbc" />>
                 </kilobot>
             </entity>
         </distribute>

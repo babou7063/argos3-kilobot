@@ -72,4 +72,10 @@ if(ARGOS_BUILD_FOR_SIMULATOR)
   #
   add_executable(test_debug test_debug.h test_debug.c)
   target_link_libraries(test_debug argos3plugin_simulator_kilolib)
+
+  #
+  # Add Lab8: Aggregation
+  #
+  add_executable(aggregation aggregation aggregation.c)
+  target_link_libraries(aggregation argos3plugin_simulator_kilolib)
 endif(ARGOS_BUILD_FOR_SIMULATOR)
