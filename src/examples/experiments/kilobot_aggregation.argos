@@ -52,19 +52,19 @@
             <entity quantity="4" max_trials="100">
                 <kilobot id="kb1">
                     <params team_kilo="1" />
-                    <controller config="kbc" />>
+                    <controller config="kbc" />
                 </kilobot>
                 <kilobot id="kb2">
                     <params team_kilo="1" />
-                    <controller config="kbc" />>
+                    <controller config="kbc" />
                 </kilobot>
                 <kilobot id="kb3">
                     <params team_kilo="2" />
-                    <controller config="kbc" />>
+                    <controller config="kbc" />
                 </kilobot>
                 <kilobot id="kb4">
                     <params team_kilo="2" />
-                    <controller config="kbc" />>
+                    <controller config="kbc" />
                 </kilobot>
             </entity>
         </distribute>
