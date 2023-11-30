@@ -19,7 +19,7 @@
             <actuators>
                 <differential_steering implementation="default" />
                 <kilobot_led implementation="default" />
-                <kilobot_communication implementation="default" medium="kilocomm" />
+                <kilobot_communication implementation="default" />
             </actuators>
             <sensors>
                 <kilobot_communication implementation="default" medium="kilocomm" show_rays="true" />
