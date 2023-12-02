@@ -16,8 +16,7 @@ int kilo_team;
 
 
 void setup(){
-    // Récupération equipe 
-    //GetNodeAttributeOrDefault(t_node, "team_kilo", m_nTeamKilo, m_nTeamKilo);
+    // Récupération equipe
     kilo_team = 1;
 
     // Assignation des état 
@@ -68,15 +67,26 @@ void SetStateSurrondingRobots(message_t msg){
 }
 
 uint8_t genertaor_left_value(){
-    return kilo_straight_left;
+    
+    if (rand_soft() % 2 == 0){
+        return kilo_straight_left;
+    }
+    else{
+        return 0;
+    }
 }
 
 uint8_t genertaor_right_value(){
-    return kilo_straight_right;
+
+    if (rand_soft() % 2 == 0){
+        return kilo_straight_right;
+    }
+    else{
+        return 0;
+    }
 }
 
 void RW_Alone(){
-    // il va en avant durant 10cm
     spinup_motors();
     set_motors(genertaor_left_value(), genertaor_right_value());
     delay(1000);

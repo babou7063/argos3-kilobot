@@ -54,5 +54,6 @@
         "typeinfo": "cpp",
         "variant": "cpp",
         "argos_configuration.h": "c"
-    }
+    },
+    "cmake.configureOnOpen": false
 }
