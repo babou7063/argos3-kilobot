@@ -77,9 +77,9 @@ if(ARGOS_BUILD_FOR_SIMULATOR)
   # Lab9: message diffusion
   #
   add_executable(message_diffusion_reciever message_diffusion_reciever.c)
-  target_link_libraries(kilobot_message_diffusion argos3plugin_simulator_kilolib)
+  target_link_libraries(message_diffusion_reciever argos3plugin_simulator_kilolib)
   add_executable(message_diffusion_sender message_diffusion_sender.c)
-  target_link_libraries(kilobot_message_diffusion argos3plugin_simulator_kilolib)
+  target_link_libraries(message_diffusion_sender argos3plugin_simulator_kilolib)
  
   #
   # Debugging example
