@@ -24,7 +24,8 @@
             <sensors>
                 <kilobot_communication implementation="default" medium="kilocomm" show_rays="true" />
             </sensors>
-            <params behavior="build/examples/behaviors/aggregation" />
+            <params nb_team="1"
+                    behavior="build/examples/behaviors/aggregation" />
         </kilobot_controller>
     </controllers>
 

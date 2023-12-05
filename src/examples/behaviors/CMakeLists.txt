@@ -68,14 +68,23 @@ if(ARGOS_BUILD_FOR_SIMULATOR)
   target_link_libraries(sync argos3plugin_simulator_kilolib)
 
   #
+  # Lab8: Aggregation
+  #
+  add_executable(aggregation aggregation aggregation.c)
+  target_link_libraries(aggregation argos3plugin_simulator_kilolib)
+
+  #
+  # Lab9: message diffusion
+  #
+  add_executable(message_diffusion_reciever message_diffusion_reciever.c)
+  target_link_libraries(kilobot_message_diffusion argos3plugin_simulator_kilolib)
+  add_executable(message_diffusion_sender message_diffusion_sender.c)
+  target_link_libraries(kilobot_message_diffusion argos3plugin_simulator_kilolib)
+ 
+  #
   # Debugging example
   #
   add_executable(test_debug test_debug.h test_debug.c)
   target_link_libraries(test_debug argos3plugin_simulator_kilolib)
 
-  #
-  # Add Lab8: Aggregation
-  #
-  add_executable(aggregation aggregation aggregation.c)
-  target_link_libraries(aggregation argos3plugin_simulator_kilolib)
 endif(ARGOS_BUILD_FOR_SIMULATOR)
