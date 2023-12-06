@@ -30,8 +30,13 @@ void setup(){
 }
 
 
-void flashing_LED(int red, int green, int blue){
-    set_color(RGB(red, green, blue));
+void flashing_LED(int team){
+    if (team == 1){
+        set_color(RGB(39, 255, 6));
+        }
+    else{
+        set_color(RGB(0, 60, 255));
+    }
     delay(500);
     set_color(RGB(0, 0, 0));
     delay(500);
@@ -131,28 +136,28 @@ void loop(){
     switch (current_state){
             
             case ALONE:
+                flashing_LED(kilo_team);
                 RW_Alone();
-                flashing_LED(39, 255, 6);
                 break;
             
             case N_FRIEND:
+                flashing_LED(kilo_team);
                 RW_NF();
-                flashing_LED(39, 255, 6);
                 break;
 
             case N_ENENY:
+                flashing_LED(kilo_team);
                 RW_NE();
-                flashing_LED(39, 255, 6);
                 break;
 
             case N_FE:
+                flashing_LED(kilo_team);
                 RW_NFE();
-                flashing_LED(39, 255, 6);
                 break;
 
             // gestion erreur 
             default:
-                flashing_LED(255, 0, 0);
+                flashing_LED(kilo_team);
                 break;
         }
 }
