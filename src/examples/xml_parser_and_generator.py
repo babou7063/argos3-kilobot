@@ -12,7 +12,6 @@ def main():
     
     for controller in root.findall('controllers'):
         nb_team = controller.find('kilobot_controller').find('params').get('nb_team')
-        print(nb_team)
 
  
     # Checker s'il existe déja nb_team fichier c
