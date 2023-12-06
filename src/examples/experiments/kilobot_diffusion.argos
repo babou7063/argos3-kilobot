@@ -113,7 +113,6 @@
     <qt-opengl>
       <camera>
         <placement idx="0" position="0,0,1" look_at="0,0,0" lens_focal_length="20" />
-        <placement idx="1" position="0.25,0.25,0.25" look_at="0,0,0" lens_focal_length="20" />
       </camera>
     </qt-opengl>
   </visualization>
