@@ -15,7 +15,7 @@
     <!-- * Controllers * -->
     <!-- *************** -->
     <controllers>
-        <kilobot_controller id = "kbc">
+        <kilobot_controller id = "kbc1">
             <actuators>
                 <differential_steering implementation="default" />
                 <kilobot_led implementation="default" />
@@ -26,6 +26,19 @@
             </sensors>
             <params nb_team="2"
                     behavior="build/examples/behaviors/aggregation" />
+        </kilobot_controller>
+
+        <kilobot_controller id = "kbc2">
+            <actuators>
+                <differential_steering implementation="default" />
+                <kilobot_led implementation="default" />
+                <kilobot_communication implementation="default" />
+            </actuators>
+            <sensors>
+                <kilobot_communication implementation="default" medium="kilocomm" show_rays="true" />
+            </sensors>
+            <params nb_team="2"
+                    behavior="build/examples/behaviors/aggregation2" />
         </kilobot_controller>
     </controllers>
 
@@ -50,22 +63,21 @@
         <distribute>
             <position method="uniform" min="-0.5,-0.5,0" max="0.5,0.5,0" />
             <orientation method="gaussian" mean="0,0,0" std_dev="360,0,0" />
-            <entity quantity="10" max_trials="100">
+            <entity quantity="5" max_trials="100">
                 <kilobot id="kb1">
                     <params team_kilo="1" />
-                    <controller config="kbc" />
+                    <controller config="kbc1" />
                 </kilobot>
+            </entity>
+        </distribute>
+
+        <distribute>
+            <position method="uniform" min="-0.5,-0.5,0" max="0.5,0.5,0" />
+            <orientation method="gaussian" mean="0,0,0" std_dev="360,0,0" />
+            <entity quantity="5" max_trials="100">
                 <kilobot id="kb2">
-                    <params team_kilo="1" />
-                    <controller config="kbc" />
-                </kilobot>
-                <kilobot id="kb3">
                     <params team_kilo="2" />
-                    <controller config="kbc" />
-                </kilobot>
-                <kilobot id="kb4">
-                    <params team_kilo="2" />
-                    <controller config="kbc" />
+                    <controller config="kbc2" />
                 </kilobot>
             </entity>
         </distribute>

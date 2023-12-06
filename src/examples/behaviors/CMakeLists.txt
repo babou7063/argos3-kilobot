@@ -70,8 +70,10 @@ if(ARGOS_BUILD_FOR_SIMULATOR)
   #
   # Lab8: Aggregation
   #
-  add_executable(aggregation aggregation aggregation.c)
+  add_executable(aggregation aggregation.c)
   target_link_libraries(aggregation argos3plugin_simulator_kilolib)
+  add_executable(aggregation2 aggregation2.c)
+  target_link_libraries(aggregation2 argos3plugin_simulator_kilolib)
 
   #
   # Lab9: message diffusion
