@@ -3,19 +3,53 @@
 #include <stdio.h>
 #include <math.h>
 
-// Definition des etats
-#define ALONE 0
-#define FRIEND_MAJORITY 1
-#define ENNEMY_MAJORITY 2
+#define TICKS_TO_SEC 32
+#define STD_MOTION_STEPS 5*16
+#define REFRESH_RATE 10
 
-// Initalisation des variables globales
+
+// Definition des etats
+typedef enum {
+    ALONE = 0,           // Mode PERSISTENT -> explorer
+    FRIEND_MAJORITY = 1, // Mode BROWNIAN -> rester +- au même endroit
+    ENNEMY_MAJORITY = 2, // Mode PERSISTENT -> explorer
+} state_type;
+
+// Définition des mouvement
+typedef enum {
+    STOP = 0,
+    FORWARD = 1,
+    TURN_RIGHT = 2,
+    TURN_LEFT = 3,
+} motion_type;
+
+
+// Initalisation des variables globales //
+
+// Message
 message_t send_msg;
 message_t rcv_msg;
 int new_message;
-int current_state;
-int previous_state;
+// state
+state_type current_state;
+state_type previous_state;
+//motion
+motion_type current_motion;
+motion_type  previous_motion;
+//team
 int kilo_team;
 int neighbors_count[2]; // neighbors_count[0] = le nombre d'ami, neighbors_count[1] = le nombre d'ennemi, peu importe son équipe
+// random walk
+float crw_exponent;
+float levy_exponent;
+const std_motion_steps = STD_MOTION_STEPS;
+// ticks
+uint32_t census_ticks;
+uint32_t turning_ticks = 0; 
+const uint8_t max_turning_ticks = 120;
+unsigned int straight_ticks = 0;       
+const uint16_t max_straight_ticks = 320;
+uint32_t last_motion_ticks = 0;
 
 void setup(){
     // Récupération equipe
@@ -25,6 +59,10 @@ void setup(){
     current_state = ALONE;
     previous_state = ALONE;
 
+    // Assignation des motion
+    current_motion = STOP;
+    previous_motion = STOP;
+
     // Assigniation de la valeur du message et calcule de son CRC
     send_msg.type = NORMAL;
     send_msg.data[0] = kilo_team; 
@@ -33,6 +71,12 @@ void setup(){
     // Création du tableau de nombre de voisin
     neighbors_count[0] = 0;
     neighbors_count[1] = 0;
+
+    // Assignation des exposants de départ
+    set_exponent();
+
+    // On met à zéro le compteur de maj du tableau
+    census_ticks = kilo_ticks;
 }
 
 
@@ -61,48 +105,144 @@ void SetStateSurrondingRobots(){
 
         current_state = ENNEMY_MAJORITY;
     }
+
+    // mise à jour du tableau
+    neighbors_count[0] = 0;
+    neighbors_count[1] = 0;
 }
 
-void RW_Alone(){
-    
+void set_motion(motion_type new_motion){
+
+    if(new_motion != current_motion){
+
+        switch(new_motion){
+
+            case FORWARD:
+                spinup_motors();
+                set_motors(kilo_straight_left, kilo_straight_right);
+                break;
+            
+            case TURN_RIGHT:
+                spinup_motors();
+                set_motors(0, kilo_turn_right);
+                break;
+
+            case TURN_LEFT:
+                spinup_motors();
+                set_motors(kilo_turn_left, 0);
+                break;
+
+            default:
+                set_motors(0,0);
+        }
+
+        current_motion = new_motion;
+    }
 }
 
-void RW_FRIEND_MAJORITY(){
+void set_exponent(){
+    switch (current_state)
+    {
+    case FRIEND_MAJORITY:
+        crw_exponent = 0.0;
+        levy_exponent = 2.0;
+        break;
     
+    case ENNEMY_MAJORITY:
+        crw_exponent = 0.9;
+        levy_exponent = 2.0;
+
+    case ALONE:
+        crw_exponent = 0.0;
+        levy_exponent = 2.0;
+        break;
+
+    default:
+        break;
+    }
+}
+
+void RW_Turn(){
+
+    // si il a tourné assez longtemps il va FORWARD
+    if(kilo_ticks > last_motion_ticks + turning_ticks){
+        last_motion_ticks = kilo_ticks;
+        set_motion(FORWARD);
+    }
+}
+
+void RW_Forward(){
+    
+    // si il a tourné assez de temps
+    if(kilo_ticks > last_motion_ticks + straight_ticks){
+
+        last_motion_ticks = kilo_ticks;
+
+        // tourne de manière random à gauche ou à droite
+        if(rand_soft()%2){
+            set_motion(TURN_RIGHT);
+        }
+        else{
+            set_motion(TURN_LEFT);
+        }
+
+        // mise à jour des ticks en fct des exposant
+        double angle = 0;
+
+        if (crw_exponent == 0){
+            angle = (uniform_distribution(0, (M_PI)));
+        }
+        else{
+            angle = fabs(wrapped_cauchy_ppf(crw_exponent));
+        }
+
+        turning_ticks = (uint32_t)((angle / M_PI) * max_turning_ticks);
+        straight_ticks = (uint32_t)(fabs(levy(std_motion_steps, levy_exponent)));
+    }
 }
 
 void RW_ENNEMY_MAJORITY(){
     
 }
 
+void broadcast() {
+
+}
 void loop(){
     
-    // Changer le current_state en fct des kb croisés
-    SetStateSurrondingRobots();
-    
+    flashing_LED(kilo_team);
+    broadcast();
+
     // Action de random walk
-    switch (current_state){
+    switch (current_motion){
             
-            case ALONE:
-                flashing_LED(kilo_team);
-                RW_Alone();
+            case TURN_RIGHT:
+                
+                RW_Turn();
                 break;
             
-            case FRIEND_MAJORITY:
-                flashing_LED(kilo_team);
-                RW_FRIEND_MAJORITY();
+            case TURN_LEFT:
+                
+                RW_TURN();
                 break;
 
-            case ENNEMY_MAJORITY:
-                flashing_LED(kilo_team);
-                RW_ENNEMY_MAJORITY();
+            case FORWARD:
+            
+                RW_Forward();
                 break;
 
-            // gestion erreur 
             default:
-                flashing_LED(RGB(1,0,0)); // le rouge représente une erreur
+                set_motion(STOP);
                 break;
         }
+    
+    // Si le temps s'est écoulé on met à jour le tableau et le timer de la prochaine maj
+    if (kilo_ticks > (census_ticks + REFRESH_RATE * TICKS_TO_SEC)){
+        census_ticks = kilo_ticks;
+
+        // Changer le current_state en fct des kb croisés et le mettre à zéro
+        SetStateSurrondingRobots();
+    }
 }
 
 message_t *message_tx(){
