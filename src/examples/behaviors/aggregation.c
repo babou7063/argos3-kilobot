@@ -9,14 +9,14 @@
 #define NEIGHBOR_FRIEND_INDEX 0
 #define NEIGHBOR_ENEMY_INDEX 1
 
-// Definition des etats
+// States definition
 typedef enum {
-    ALONE = 0,           // Mode PERSISTENT -> explorer
-    FRIEND_MAJORITY = 1, // Mode BROWNIAN -> rester +- au même endroit
-    ENNEMY_MAJORITY = 2, // Mode PERSISTENT -> explorer
+    ALONE = 0,           // PERSISTENT mode -> Explore
+    FRIEND_MAJORITY = 1, // BROWNIAN mode -> Staying in the same zone
+    ENNEMY_MAJORITY = 2, // PERSISTENT mode -> Explorer
 } state_type;
 
-// Définition des mouvement
+// Movement definition
 typedef enum {
     STOP = 0,
     FORWARD = 1,
@@ -24,38 +24,53 @@ typedef enum {
     TURN_LEFT = 3,
 } motion_type;
 
-// Initalisation des variables globales //
+// Boolean definition
+typedef enum {
+    true = 1,
+    false = 0,
+} bool;
 
-// Message
+/*-------------------------------------------------------------------------*/
+/*                    Defining global variables                            */
+/*-------------------------------------------------------------------------*/
+
+// Message variables
 message_t send_msg;
 message_t rcv_msg;
-int new_message;
-// state
+int sending_mess = 0;
+
+// State variables
 state_type current_state;
 state_type previous_state;
-//motion
+
+// Motion variables
 motion_type current_motion;
 motion_type  previous_motion;
-//team
+
+// Team variables
 int kilo_team;
-int neighbors_count[2]; // neighbors_count[0] = le nombre d'ami, neighbors_count[1] = le nombre d'ennemi, peu importe son équipe
-// random walk
+int neighbors_count[2]; // neighbors_count[0] = Number of friends crossed
+                        // neighbors_count[1] = Number of enemy crossed, whatever his team
+
+// Random walk variables
 float crw_exponent;
 float levy_exponent;
 const float std_motion_steps = STD_MOTION_STEPS;
-// ticks
+
+// Ticks variables, which represents the kilobot time indicator
 uint32_t census_ticks;
 uint32_t turning_ticks = 0; 
 const uint8_t max_turning_ticks = 120;
 unsigned int straight_ticks = 0;       
 const uint16_t max_straight_ticks = 320;
 uint32_t last_motion_ticks = 0;
+uint32_t max_broadcast_ticks = 150;
+uint32_t last_broadcast_ticks = 0;
 
-
-/*---------------------------------------------------------------------*/
-/*     Fonction d'implémentation de distribution de Cauchy et Levy     */
-/*                       @author cdimidov                              */
-/*---------------------------------------------------------------------*/
+/*-------------------------------------------------------------------------*/
+/*         Cauchy and Levy distribution implementation function            */
+/*                       @author cdimidov                                  */
+/*-------------------------------------------------------------------------*/
 
 double uniform_distribution(double a, double b)
 {
@@ -123,11 +138,14 @@ int levy(const double c, const double alpha)
   return (int)(c * t * s);
 }
 
-/*---------------------------------------------------------------------*/
-/*                       Fonction blabla                               */
-/*                       @author babou7063                             */
-/*---------------------------------------------------------------------*/
+/*-------------------------------------------------------------------------*/
+/*                  Implementing kilobot behavior                          */
+/*                       @author babou7063                                 */
+/*-------------------------------------------------------------------------*/
 
+/*-------------------------------------------------------------------------*/
+/* Function initializing the exponents of the levy and cauchy distributions*/
+/*-------------------------------------------------------------------------*/
 void set_exponent(){
     switch (current_state)
     {
@@ -150,35 +168,40 @@ void set_exponent(){
     }
 }
 
+/*-------------------------------------------------------------------------*/
+/*                            Setup fonction                               */
+/*-------------------------------------------------------------------------*/
 void setup(){
-    // Récupération equipe
+    // Retrieve team number
     kilo_team = 1;
 
-    // Assignation des état 
+    // States assignment 
     current_state = ALONE;
     previous_state = ALONE;
 
-    // Assignation des motion
-    current_motion = STOP;
+    // Motion assignment
+    current_motion = FORWARD;
     previous_motion = STOP;
 
-    // Assigniation de la valeur du message et calcule de son CRC
+    // Message assignment and calculates its CRC
     send_msg.type = NORMAL;
     send_msg.data[0] = kilo_team; 
     send_msg.crc = message_crc(&send_msg);
 
-    // Création du tableau de nombre de voisin
+    // Creating the neighbor number table
     neighbors_count[NEIGHBOR_FRIEND_INDEX] = 0;
     neighbors_count[NEIGHBOR_ENEMY_INDEX] = 0;
 
-    // Assignation des exposants de départ
+    // Assigning starting exponents 
     set_exponent();
 
-    // On met à zéro le compteur de maj du tableau
+    // Census tiks assignment
     census_ticks = kilo_ticks;
 }
 
-
+/*-------------------------------------------------------------------------*/
+/*                  Team-based LED lighting function                       */
+/*-------------------------------------------------------------------------*/
 void flashing_LED(int team){
     set_color(RGB((kilo_team*100)%255, ((kilo_team+1)*100)%255, ((kilo_team+2)*100)%255));
     delay(500);
@@ -186,8 +209,10 @@ void flashing_LED(int team){
     delay(500);
 }
 
+/*-------------------------------------------------------------------------*/
+/*           Robot status modification function and table update           */
+/*-------------------------------------------------------------------------*/
 void SetStateSurrondingRobots(){
-    // modification de l'état du kb
 
     // ALONE
     if (neighbors_count[NEIGHBOR_FRIEND_INDEX] == 0 && neighbors_count[NEIGHBOR_ENEMY_INDEX] == 0) {
@@ -199,17 +224,20 @@ void SetStateSurrondingRobots(){
         
         current_state = FRIEND_MAJORITY;
     }
-    // ENNEMY => choix arbitraire : s'ils sont le même nombre il sera en mode exploration
+    // ENNEMY => arbitrary choice: if as many friend as enemy, it will be in exploration mode 
     else if (neighbors_count[NEIGHBOR_FRIEND_INDEX] <= neighbors_count[NEIGHBOR_ENEMY_INDEX]) {
 
         current_state = ENNEMY_MAJORITY;
     }
 
-    // mise à jour du tableau
+    // Table update
     neighbors_count[NEIGHBOR_FRIEND_INDEX] = 0;
     neighbors_count[NEIGHBOR_ENEMY_INDEX] = 0;
 }
 
+/*-------------------------------------------------------------------------*/
+/*                       Defines robot motion state                        */
+/*-------------------------------------------------------------------------*/
 void set_motion(motion_type new_motion){
 
     if(new_motion != current_motion){
@@ -239,23 +267,29 @@ void set_motion(motion_type new_motion){
     }
 }
 
+/*-------------------------------------------------------------------------*/
+/*                          Turn function                                  */
+/*-------------------------------------------------------------------------*/
 void RW_Turn(){
 
-    // si il a tourné assez longtemps il va FORWARD
+    // If it turned enough, starts to go forward
     if(kilo_ticks > last_motion_ticks + turning_ticks){
         last_motion_ticks = kilo_ticks;
         set_motion(FORWARD);
     }
 }
 
+/*-------------------------------------------------------------------------*/
+/*                           Forward function                              */
+/*-------------------------------------------------------------------------*/
 void RW_Forward(){
     
-    // si il a avancé assez de temps il va tourner
+    // If it went forward enough, starts to turn
     if(kilo_ticks > last_motion_ticks + straight_ticks){
 
         last_motion_ticks = kilo_ticks;
 
-        // tourne de manière random à gauche ou à droite
+        // Turns randomly left or right
         if(rand_soft()%2){
             set_motion(TURN_RIGHT);
         }
@@ -263,7 +297,7 @@ void RW_Forward(){
             set_motion(TURN_LEFT);
         }
 
-        // mise à jour des ticks en fct des exposant
+        // Calculates movement times (tiks)
         double angle = 0;
 
         if (crw_exponent == 0){
@@ -278,19 +312,57 @@ void RW_Forward(){
     }
 }
 
-void RW_ENNEMY_MAJORITY(){
-    
-}
-
+/*-------------------------------------------------------------------------*/
+/*                      Message startup function                           */
+/*-------------------------------------------------------------------------*/
 void broadcast() {
-
+    // If listening period is over
+    if (sending_mess == false && kilo_ticks > last_broadcast_ticks + max_broadcast_ticks){
+        last_broadcast_ticks = kilo_ticks;
+        sending_mess = true;
+    }
 }
+
+/*-------------------------------------------------------------------------*/
+/*              Callback for message transmission                          */
+/*-------------------------------------------------------------------------*/
+message_t *message_tx(){
+    if (sending_mess == true){
+        return &send_msg;
+    }
+    return 0;
+}
+
+/*-------------------------------------------------------------------------*/
+/*          Callback for successful message transmission                   */
+/*-------------------------------------------------------------------------*/
+void message_tx_sucess(){
+    sending_mess = false;
+}
+
+/*-------------------------------------------------------------------------*/
+/*                  Callback for message receiption                        */
+/*-------------------------------------------------------------------------*/
+void message_rx (message_t *rcv_msg, distance_measurement_t *distance){
+    
+    // table update according to message
+    if (rcv_msg->data[0] == (kilo_team & 0xFF) && rcv_msg->data[1] == ((kilo_team >> 8) & 0xFF)) {
+        neighbors_count[NEIGHBOR_FRIEND_INDEX]++; // add a friend
+
+    } else {
+        neighbors_count[NEIGHBOR_ENEMY_INDEX]++; // add an enemy
+    }
+}
+
+/*-------------------------------------------------------------------------*/
+/*                           Loop function                                 */
+/*-------------------------------------------------------------------------*/
 void loop(){
     
     flashing_LED(kilo_team);
     broadcast();
 
-    // Action de random walk
+    // Random walk action
     switch (current_motion){
             
             case TURN_RIGHT:
@@ -313,35 +385,17 @@ void loop(){
                 break;
         }
     
-    // Si le temps s'est écoulé on met à jour le tableau et le timer de la prochaine maj
+    // If time has elapsed, census ticks update
     if (kilo_ticks > (census_ticks + REFRESH_RATE * TICKS_TO_SEC)){
         census_ticks = kilo_ticks;
 
-        // Changer le current_state en fct des kb croisés et le mettre à zéro
+        // Sates and table update
         SetStateSurrondingRobots();
     }
 }
 
-message_t *message_tx(){
-    return &send_msg;
-}
-
-void message_rx (message_t *rcv_msg, distance_measurement_t *distance){
-    
-    // mise à jour du tableau de compte
-    if (rcv_msg->data[0] == (kilo_team & 0xFF) && rcv_msg->data[1] == ((kilo_team >> 8) & 0xFF)) {
-        neighbors_count[NEIGHBOR_FRIEND_INDEX]++; // on ajoute un ami
-
-    } else {
-        neighbors_count[NEIGHBOR_ENEMY_INDEX]++; // on ajoute un ennemie
-    }
-    // on met a jour le bool
-    // pas utilisé new_message = 1;
-}
-
 /*----------------------------------------------------------------------*/
 /*                          Main function                               */
-/*                        @author babou7063                             */
 /*----------------------------------------------------------------------*/
 int main(){
     kilo_init();
