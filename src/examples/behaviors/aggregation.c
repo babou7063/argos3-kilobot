@@ -8,6 +8,7 @@
 #define REFRESH_RATE 10
 #define NEIGHBOR_FRIEND_INDEX 0
 #define NEIGHBOR_ENEMY_INDEX 1
+#define KILO_TEAM 1
 
 // States definition
 typedef enum {
@@ -48,7 +49,6 @@ motion_type current_motion;
 motion_type  previous_motion;
 
 // Team variables
-int kilo_team;
 int neighbors_count[2]; // neighbors_count[0] = Number of friends crossed
                         // neighbors_count[1] = Number of enemy crossed, whatever his team
 
@@ -172,9 +172,6 @@ void set_exponent(){
 /*                            Setup fonction                               */
 /*-------------------------------------------------------------------------*/
 void setup(){
-    // Retrieve team number
-    kilo_team = 1;
-
     // States assignment 
     current_state = ALONE;
     previous_state = ALONE;
@@ -185,7 +182,7 @@ void setup(){
 
     // Message assignment and calculates its CRC
     send_msg.type = NORMAL;
-    send_msg.data[0] = kilo_team; 
+    send_msg.data[0] = KILO_TEAM; 
     send_msg.crc = message_crc(&send_msg);
 
     // Creating the neighbor number table
@@ -203,7 +200,14 @@ void setup(){
 /*                  Team-based LED lighting function                       */
 /*-------------------------------------------------------------------------*/
 void flashing_LED(int team){
-    set_color(RGB((kilo_team*100)%255, ((kilo_team+1)*100)%255, ((kilo_team+2)*100)%255));
+    // If multiple of 3 -> red = 2, if not it will be 1 or 0
+    int red = (team % 3 == 0) * 3 + ((team % 3) - 1);
+    // If multiple of 2 -> green = 3
+    int green = (team % 2 == 0) * 3;
+    //If non multiple of 2 -> blue = 3
+    int blue = (team % 2 != 0) * 3;
+
+    set_color(RGB(red, green, blue));
     delay(500);
     set_color(RGB(0, 0, 0));
     delay(500);
@@ -346,7 +350,7 @@ void message_tx_sucess(){
 void message_rx (message_t *rcv_msg, distance_measurement_t *distance){
     
     // table update according to message
-    if (rcv_msg->data[0] == (kilo_team & 0xFF) && rcv_msg->data[1] == ((kilo_team >> 8) & 0xFF)) {
+    if (rcv_msg->data[0] == (KILO_TEAM & 0xFF) && rcv_msg->data[1] == ((KILO_TEAM >> 8) & 0xFF)) {
         neighbors_count[NEIGHBOR_FRIEND_INDEX]++; // add a friend
 
     } else {
@@ -359,7 +363,7 @@ void message_rx (message_t *rcv_msg, distance_measurement_t *distance){
 /*-------------------------------------------------------------------------*/
 void loop(){
     
-    flashing_LED(kilo_team);
+    flashing_LED(KILO_TEAM);
     broadcast();
 
     // Random walk action

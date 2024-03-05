@@ -19,22 +19,21 @@ def main():
     # Checks if a .c file already exists
     for i in range(2,int(nb_team)+1):
         
-        new_path = path_controller + "/aggregationV0" + str(i) + ".c"
+        new_path = path_controller + "/aggregation" + str(i) + ".c"
         
         if not os.path.exists(new_path):
             # Creating an additional .c file
-            shutil.copyfile(path_controller + "/aggregationV0.c",new_path)
+            shutil.copyfile(path_controller + "/aggregation.c",new_path)
             
             fichierC = open(new_path,'r+')
             
-            new_value = "kilo_team = " + str(i)
+            new_value = "KILO_TEAM " + str(i)
             data = fichierC.read()
-            new_data = data.replace("kilo_team = 1", new_value)
+            new_data = data.replace("KILO_TEAM 1", new_value)
             fichierC.seek(0)
             fichierC.write(new_data)
             
             fichierC.close()
-
 
 if __name__ == "__main__":
     main()
