@@ -157,6 +157,7 @@ void set_exponent(){
     case ENNEMY_MAJORITY:
         crw_exponent = 0.9;
         levy_exponent = 2.0;
+        break;
 
     case ALONE:
         crw_exponent = 0.0;
@@ -208,9 +209,6 @@ void flashing_LED(int team){
     int blue = (team % 2 != 0) * 3;
 
     set_color(RGB(red, green, blue));
-    delay(500);
-    set_color(RGB(0, 0, 0));
-    delay(500);
 }
 
 /*-------------------------------------------------------------------------*/
