@@ -361,6 +361,10 @@ void message_rx (message_t *rcv_msg, distance_measurement_t *distance){
 /*-------------------------------------------------------------------------*/
 void loop(){
     
+    if(current_state == ALONE || current_state == ENNEMY_MAJORITY){
+        set_color(RGB(0, 0, 0));
+    }
+    
     flashing_LED(KILO_TEAM);
     broadcast();
 
